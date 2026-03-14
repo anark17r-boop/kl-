@@ -822,3 +822,6 @@ fn main() {
     println("Game Over! Score: %d", player.score);
 }
 ```
+```
+скачать последнюю версию языка можно в Realese
+```
