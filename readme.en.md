@@ -1016,6 +1016,194 @@ fn main() {
 }
 ```
 
+## 14. Imports
+
+### File inclusion
+```
+import "myfile.kl";
+```
+Includes the contents of another `.kl` file. Searches in the current folder first, then in `stdlib/`.
+
+---
+
+## 15. Error Handling
+
+### Try / Catch / Throw
+```
+try {
+    throw "Something went wrong!";
+} catch (err) {
+    println("Error: %s", err);
+}
+```
+
+| Keyword | Description |
+|---------|-------------|
+| `try` | Code block that may throw an error |
+| `catch (err)` | Catches the error, `err` is the message string |
+| `throw "msg"` | Throws an error |
+
+---
+
+## 16. Timers
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `timer_start()` | Start timer | — |
+| `timer_end()` | Stop and get time | `f64` — milliseconds |
+| `timer_ms()` | Current time in milliseconds | `f64` |
+| `timer_us()` | Current time in microseconds | `f64` |
+| `sleep(seconds)` | Pause in seconds | — |
+| `sleep_ms(ms)` | Pause in milliseconds | — |
+
+```
+timer_start();
+// ... code ...
+let elapsed: f64 = timer_end();
+println("Time: %f ms", elapsed);
+
+sleep(1);
+sleep_ms(500);
+```
+
+---
+
+## 17. File I/O
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `file_read(path)` | Read file | `str` — content |
+| `file_write(path, content)` | Write to file | `i32` — 0 = OK |
+| `file_append(path, content)` | Append to file | `i32` — 0 = OK |
+| `file_exists(path)` | Check if exists | `i32` — 1 = yes |
+| `file_delete(path)` | Delete file | `i32` — 0 = OK |
+| `file_copy(src, dst)` | Copy file | `i32` — 0 = OK |
+| `file_size(path)` | File size | `i64` — bytes |
+| `file_lines(path)` | Number of lines | `i32` |
+| `file_read_bytes(path, offset, count)` | Read bytes | `str` |
+| `file_write_bytes(path, data, length)` | Write bytes | `i32` — 0 = OK |
+
+```
+file_write("test.txt", "Hello World!\n");
+let content: str = file_read("test.txt");
+println("%s", content);
+
+if file_exists("test.txt") == 1 {
+    let size: i64 = file_size("test.txt");
+    println("Size: %lld bytes", size);
+}
+
+file_append("test.txt", "New line\n");
+file_copy("test.txt", "backup.txt");
+file_delete("backup.txt");
+```
+
+---
+
+## 18. Graphical User Interface (GUI)
+
+### MessageBox
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `msgbox(title, message)` | Information box | `i32` |
+| `msgbox_yesno(title, message)` | Yes/No box | `i32` — 1 = Yes, 0 = No |
+| `msgbox_yesnocancel(title, message)` | Yes/No/Cancel box | `i32` — 1/0/-1 |
+| `msgbox_error(title, message)` | Error box | — |
+| `msgbox_warning(title, message)` | Warning box | — |
+| `notification(title, message)` | System notification | — |
+
+```
+msgbox("Info", "Hello from Kl+!");
+
+let answer: i32 = msgbox_yesno("Question", "Continue?");
+if answer == 1 {
+    println("Yes!");
+}
+
+msgbox_error("Error", "Something failed!");
+```
+
+### Input Dialog
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `input_dialog(title, prompt)` | Text input dialog | `str` |
+
+```
+let name: str = input_dialog("Input", "Enter your name:");
+println("Hello, %s!", name);
+```
+
+### File Dialogs
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `file_open_dialog(title, filter)` | File open dialog | `str` — path |
+| `file_save_dialog(title, filter)` | File save dialog | `str` — path |
+
+```
+let path: str = file_open_dialog("Open", "Text Files\0*.txt\0");
+println("Selected: %s", path);
+```
+
+### Color Picker
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `color_dialog()` | Color picker | `i32` — RGB value, -1 = cancel |
+
+```
+let color: i32 = color_dialog();
+println("Color: %d", color);
+```
+
+### Clipboard
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `clipboard_set(text)` | Copy to clipboard | `i32` — 0 = OK |
+| `clipboard_get()` | Get from clipboard | `str` |
+
+```
+clipboard_set("Hello from Kl+!");
+let text: str = clipboard_get();
+println("Clipboard: %s", text);
+```
+
+### Window System
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `gui_window(title, width, height)` | Create window | `i32` — window ID |
+| `gui_button(win, text, x, y, w, h, id)` | Add button | — |
+| `gui_label(win, text, x, y, w, h, id)` | Add label | — |
+| `gui_textbox(win, text, x, y, w, h, id)` | Add textbox | — |
+| `gui_textbox_multi(win, text, x, y, w, h, id)` | Multi-line textbox | — |
+| `gui_checkbox(win, text, x, y, w, h, id)` | Add checkbox | — |
+| `gui_progressbar(win, x, y, w, h, id)` | Progress bar | — |
+| `gui_set_progress(win, id, value)` | Set progress (0-100) | — |
+| `gui_get_text(win, id)` | Get element text | `str` |
+| `gui_set_text(win, id, text)` | Set element text | — |
+| `gui_is_checked(win, id)` | Checkbox state | `i32` — 1 = checked |
+| `gui_run(win)` | Run window loop | `i32` |
+| `gui_close(win)` | Close window | — |
+| `gui_show(win)` | Show window | — |
+| `gui_hide(win)` | Hide window | — |
+| `gui_set_title(win, title)` | Change title | — |
+| `gui_enable(win, id, enabled)` | Enable/disable element | — |
+
+```
+let win: i32 = gui_window("My App", 400, 300);
+gui_label(win, "Hello!", 20, 20, 200, 25, 1);
+gui_textbox(win, "", 20, 50, 200, 25, 2);
+gui_button(win, "Click Me", 20, 90, 100, 30, 3);
+gui_checkbox(win, "Option", 20, 130, 150, 25, 4);
+gui_progressbar(win, 20, 170, 350, 25, 5);
+gui_set_progress(win, 5, 75);
+gui_run(win);
+```
+
 ---
 
 **Download the latest version of the language in Releases (.exe)**
