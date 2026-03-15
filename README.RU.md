@@ -1017,6 +1017,194 @@ fn main() {
 }
 ```
 
+## 14. Импорты
+
+### Подключение файлов
+```
+import "myfile.kl";
+```
+Подключает содержимое другого `.kl` файла. Поиск выполняется сначала в текущей папке, затем в `stdlib/`.
+
+---
+
+## 15. Обработка ошибок
+
+### Try / Catch / Throw
+```
+try {
+    throw "Something went wrong!";
+} catch (err) {
+    println("Error: %s", err);
+}
+```
+
+| Ключевое слово | Описание |
+|----------------|----------|
+| `try` | Блок кода, который может вызвать ошибку |
+| `catch (err)` | Ловит ошибку, `err` — строка с сообщением |
+| `throw "msg"` | Бросает ошибку |
+
+---
+
+## 16. Таймеры
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `timer_start()` | Запустить таймер | — |
+| `timer_end()` | Остановить и получить время | `f64` — миллисекунды |
+| `timer_ms()` | Текущее время в миллисекундах | `f64` |
+| `timer_us()` | Текущее время в микросекундах | `f64` |
+| `sleep(seconds)` | Пауза в секундах | — |
+| `sleep_ms(ms)` | Пауза в миллисекундах | — |
+
+```
+timer_start();
+// ... код ...
+let elapsed: f64 = timer_end();
+println("Time: %f ms", elapsed);
+
+sleep(1);
+sleep_ms(500);
+```
+
+---
+
+## 17. Файловый ввод/вывод
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `file_read(path)` | Прочитать файл | `str` — содержимое |
+| `file_write(path, content)` | Записать в файл | `i32` — 0 = OK |
+| `file_append(path, content)` | Дописать в файл | `i32` — 0 = OK |
+| `file_exists(path)` | Проверить существование | `i32` — 1 = да |
+| `file_delete(path)` | Удалить файл | `i32` — 0 = OK |
+| `file_copy(src, dst)` | Копировать файл | `i32` — 0 = OK |
+| `file_size(path)` | Размер файла | `i64` — байты |
+| `file_lines(path)` | Количество строк | `i32` |
+| `file_read_bytes(path, offset, count)` | Прочитать байты | `str` |
+| `file_write_bytes(path, data, length)` | Записать байты | `i32` — 0 = OK |
+
+```
+file_write("test.txt", "Hello World!\n");
+let content: str = file_read("test.txt");
+println("%s", content);
+
+if file_exists("test.txt") == 1 {
+    let size: i64 = file_size("test.txt");
+    println("Size: %lld bytes", size);
+}
+
+file_append("test.txt", "New line\n");
+file_copy("test.txt", "backup.txt");
+file_delete("backup.txt");
+```
+
+---
+
+## 18. Графический интерфейс (GUI)
+
+### MessageBox
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `msgbox(title, message)` | Информационное окно | `i32` |
+| `msgbox_yesno(title, message)` | Окно Да/Нет | `i32` — 1 = Да, 0 = Нет |
+| `msgbox_yesnocancel(title, message)` | Окно Да/Нет/Отмена | `i32` — 1/0/-1 |
+| `msgbox_error(title, message)` | Окно ошибки | — |
+| `msgbox_warning(title, message)` | Окно предупреждения | — |
+| `notification(title, message)` | Системное уведомление | — |
+
+```
+msgbox("Info", "Hello from Kl+!");
+
+let answer: i32 = msgbox_yesno("Question", "Continue?");
+if answer == 1 {
+    println("Yes!");
+}
+
+msgbox_error("Error", "Something failed!");
+```
+
+### Диалог ввода
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `input_dialog(title, prompt)` | Окно ввода текста | `str` |
+
+```
+let name: str = input_dialog("Input", "Enter your name:");
+println("Hello, %s!", name);
+```
+
+### Диалоги файлов
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `file_open_dialog(title, filter)` | Диалог открытия файла | `str` — путь |
+| `file_save_dialog(title, filter)` | Диалог сохранения файла | `str` — путь |
+
+```
+let path: str = file_open_dialog("Open", "Text Files\0*.txt\0");
+println("Selected: %s", path);
+```
+
+### Выбор цвета
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `color_dialog()` | Выбор цвета | `i32` — RGB значение, -1 = отмена |
+
+```
+let color: i32 = color_dialog();
+println("Color: %d", color);
+```
+
+### Буфер обмена
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `clipboard_set(text)` | Копировать в буфер обмена | `i32` — 0 = OK |
+| `clipboard_get()` | Получить из буфера обмена | `str` |
+
+```
+clipboard_set("Hello from Kl+!");
+let text: str = clipboard_get();
+println("Clipboard: %s", text);
+```
+
+### Система окон
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `gui_window(title, width, height)` | Создать окно | `i32` — ID окна |
+| `gui_button(win, text, x, y, w, h, id)` | Добавить кнопку | — |
+| `gui_label(win, text, x, y, w, h, id)` | Добавить текст | — |
+| `gui_textbox(win, text, x, y, w, h, id)` | Добавить поле ввода | — |
+| `gui_textbox_multi(win, text, x, y, w, h, id)` | Многострочное поле | — |
+| `gui_checkbox(win, text, x, y, w, h, id)` | Добавить чекбокс | — |
+| `gui_progressbar(win, x, y, w, h, id)` | Прогресс бар | — |
+| `gui_set_progress(win, id, value)` | Установить прогресс (0-100) | — |
+| `gui_get_text(win, id)` | Получить текст элемента | `str` |
+| `gui_set_text(win, id, text)` | Установить текст элемента | — |
+| `gui_is_checked(win, id)` | Состояние чекбокса | `i32` — 1 = отмечен |
+| `gui_run(win)` | Запустить цикл окна | `i32` |
+| `gui_close(win)` | Закрыть окно | — |
+| `gui_show(win)` | Показать окно | — |
+| `gui_hide(win)` | Скрыть окно | — |
+| `gui_set_title(win, title)` | Изменить заголовок | — |
+| `gui_enable(win, id, enabled)` | Включить/выключить элемент | — |
+
+```
+let win: i32 = gui_window("My App", 400, 300);
+gui_label(win, "Hello!", 20, 20, 200, 25, 1);
+gui_textbox(win, "", 20, 50, 200, 25, 2);
+gui_button(win, "Click Me", 20, 90, 100, 30, 3);
+gui_checkbox(win, "Option", 20, 130, 150, 25, 4);
+gui_progressbar(win, 20, 170, 350, 25, 5);
+gui_set_progress(win, 5, 75);
+gui_run(win);
+```
+
 ```
 скачать последнюю версию языка можно в Releases(.exe)
 ```
