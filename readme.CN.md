@@ -1345,6 +1345,250 @@ array_fill_int(arr, 5, 0);
 free arr;
 ```
 
+## 24. 加密
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `md5(text)` | MD5哈希 | `str` — 32个十六进制字符 |
+| `sha1(text)` | SHA1哈希 | `str` — 40个十六进制字符 |
+| `sha256(text)` | SHA256哈希 | `str` — 64个十六进制字符 |
+| `base64_encode(text)` | Base64编码 | `str` |
+| `base64_decode(text)` | Base64解码 | `str` |
+| `xor_crypt(text, key)` | XOR加密/解密 | `str` |
+| `random_bytes(count)` | 随机字节（十六进制） | `str` |
+| `uuid()` | 生成UUID v4 | `str` |
+| `crc32(text)` | CRC32校验和 | `i32` |
+
+```
+let hash: str = sha256("Hello");
+let encoded: str = base64_encode("Secret");
+let decoded: str = base64_decode(encoded);
+let id: str = uuid();
+let checksum: i32 = crc32("data");
+```
+
+---
+
+## 25. TCP套接字
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `tcp_connect(host, port)` | 连接到服务器 | `i32` — 套接字（-1 = 错误） |
+| `tcp_send(sock, data)` | 发送数据 | `i32` — 发送的字节数 |
+| `tcp_send_bytes(sock, data, len)` | 发送N个字节 | `i32` |
+| `tcp_recv(sock, max_size)` | 接收数据 | `str` |
+| `tcp_recv_bytes(sock, buf, max)` | 接收到缓冲区 | `i32` — 接收的字节数 |
+| `tcp_close(sock)` | 关闭连接 | — |
+| `tcp_set_timeout(sock, ms)` | 设置超时 | `i32` |
+
+```
+let sock: i32 = tcp_connect("example.com", 80);
+tcp_send(sock, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+let response: str = tcp_recv(sock, 4096);
+tcp_close(sock);
+```
+
+---
+
+## 26. TCP服务器
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `tcp_listen(port, backlog)` | 创建服务器 | `i32` — 套接字 |
+| `tcp_accept(server_sock)` | 接受连接 | `i32` — 客户端套接字 |
+| `tcp_get_client_ip(client)` | 客户端IP | `str` |
+
+```
+let server: i32 = tcp_listen(8080, 5);
+let client: i32 = tcp_accept(server);
+let ip: str = tcp_get_client_ip(client);
+tcp_send(client, "Hello from Kl+!");
+tcp_close(client);
+tcp_close(server);
+```
+
+---
+
+## 27. UDP套接字
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `udp_create()` | 创建UDP套接字 | `i32` — 套接字 |
+| `udp_bind(sock, port)` | 绑定到端口 | `i32` — 0 = 成功 |
+| `udp_send(sock, host, port, data)` | 发送数据 | `i32` — 发送的字节数 |
+| `udp_recv(sock, max_size)` | 接收数据 | `str` |
+| `udp_close(sock)` | 关闭 | — |
+
+```
+let sock: i32 = udp_create();
+udp_send(sock, "127.0.0.1", 9999, "Hello UDP!");
+udp_close(sock);
+```
+
+---
+
+## 28. 网络工具
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `dns_resolve(hostname)` | DNS解析为IP | `str` |
+| `port_check(host, port, timeout_ms)` | 检查端口 | `i32` — 1 = 开放 |
+
+```
+let ip: str = dns_resolve("google.com");
+let open: i32 = port_check(ip, 443, 3000);
+```
+
+---
+
+## 29. GUI画布（绘图）
+
+| 函数 | 描述 |
+|------|------|
+| `gui_canvas_init(win)` | 初始化窗口的画布 |
+| `gui_canvas_clear(win, r, g, b)` | 用颜色清除画布 |
+| `gui_canvas_refresh(win)` | 刷新显示 |
+| `gui_draw_rect(win, x, y, w, h, r, g, b)` | 填充矩形 |
+| `gui_draw_rect_outline(win, x, y, w, h, r, g, b)` | 矩形轮廓 |
+| `gui_draw_circle(win, cx, cy, radius, r, g, b)` | 填充圆 |
+| `gui_draw_line(win, x1, y1, x2, y2, r, g, b, thickness)` | 线条 |
+| `gui_draw_text(win, text, x, y, r, g, b, font, size)` | 文本 |
+| `gui_draw_text_bold(win, text, x, y, r, g, b, font, size)` | 粗体文本 |
+| `gui_draw_pixel(win, x, y, r, g, b)` | 单个像素 |
+| `gui_draw_image(win, filename, x, y, w, h)` | 加载BMP图像 |
+
+```
+gui_canvas_init(win);
+gui_canvas_clear(win, 0, 0, 0);
+gui_draw_rect(win, 10, 10, 100, 50, 255, 0, 0);
+gui_draw_circle(win, 200, 200, 50, 0, 255, 0);
+gui_draw_line(win, 0, 0, 400, 300, 255, 255, 255, 2);
+gui_draw_text(win, "Hello!", 50, 50, 255, 255, 255, "Arial", 24);
+gui_draw_image(win, "sprite.bmp", 100, 100, 64, 64);
+gui_canvas_refresh(win);
+```
+
+---
+
+## 30. GUI事件v2
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `gui_poll_event()` | 获取事件 | `i32` — 1 = 有事件 |
+| `gui_get_event_id()` | 元素ID | `i32` |
+| `gui_get_event_type()` | 事件类型 | `i32` |
+| `gui_get_event_mouse_x()` | 事件时的鼠标X | `i32` |
+| `gui_get_event_mouse_y()` | 事件时的鼠标Y | `i32` |
+| `gui_get_event_key()` | 键码 | `i32` |
+| `gui_get_mouse_x()` | 当前鼠标X | `i32` |
+| `gui_get_mouse_y()` | 当前鼠标Y | `i32` |
+| `gui_is_mouse_down()` | 左键按下 | `i32` — 1 = 是 |
+| `gui_is_mouse_right_down()` | 右键按下 | `i32` — 1 = 是 |
+
+### 事件类型
+
+| 常量 | 值 | 描述 |
+|------|----|------|
+| `CLICK` | 1 | 按钮或鼠标点击 |
+| `CHANGE` | 2 | 文本更改 |
+| `MOUSE_MOVE` | 3 | 鼠标移动 |
+| `MOUSE_DOWN` | 4 | 鼠标按下 |
+| `MOUSE_UP` | 5 | 鼠标释放 |
+| `KEY_DOWN` | 6 | 键按下 |
+| `KEY_UP` | 7 | 键释放 |
+| `TIMER` | 8 | 定时器事件 |
+| `CLOSE` | 9 | 窗口关闭 |
+| `PAINT` | 10 | 重绘 |
+| `DOUBLE_CLICK` | 11 | 双击 |
+| `MOUSE_WHEEL` | 12 | 鼠标滚轮 |
+| `FOCUS` | 13 | 元素焦点 |
+| `RESIZE` | 14 | 窗口大小改变 |
+
+```
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        let etype: i32 = gui_get_event_type();
+        let mx: i32 = gui_get_event_mouse_x();
+        let my: i32 = gui_get_event_mouse_y();
+
+        if etype == 1 {
+            println("Click at %d, %d", mx, my);
+        }
+        if etype == 6 {
+            let key: i32 = gui_get_event_key();
+            println("Key pressed: %d", key);
+        }
+        if etype == 8 {
+            println("Timer tick!");
+        }
+    }
+    sleep_ms(16);
+}
+```
+
+---
+
+## 31. GUI定时器
+
+| 函数 | 描述 |
+|------|------|
+| `gui_set_timer(win, ms)` | 启动定时器（毫秒间隔） |
+| `gui_stop_timer(win)` | 停止定时器 |
+
+```
+gui_set_timer(win, 50);
+
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        if gui_get_event_type() == 8 {
+            // 定时器触发 - 更新游戏
+        }
+    }
+}
+
+gui_stop_timer(win);
+```
+
+---
+
+## 32. GUI光标
+
+| 函数 | 描述 |
+|------|------|
+| `gui_set_cursor(type)` | 更改光标 |
+
+| 类型 | 值 | 描述 |
+|------|----|------|
+| 0 | 箭头 | 默认 |
+| 1 | 手型 | 用于按钮 |
+| 2 | 十字 | 用于绘图 |
+| 3 | 文本 | 用于输入 |
+| 4 | 等待 | 加载中 |
+
+```
+gui_set_cursor(1);
+```
+
+---
+
+## 33. VS Code扩展
+
+### 安装
+
+1. 如果没有Node.js，从这里安装：https://nodejs.org/en/download（.msi安装程序）
+2. 打开VS Code
+3. 按Ctrl+Shift+P
+4. 输入 `Extensions: Install from VSIX...`
+5. 选择 `.vsix` 文件
+
+### 功能特性
+
+- 所有关键词语法高亮
+- 内置函数按类别高亮
+- 自动闭合括号和引号
+- 代码片段：`main`、`fn`、`for`、`if`、`try`、`struct`、`httpget`、`guiwin`、`tcp`、`timer`等
+- "Kl+ Dark"深色主题
+
 ---
 
 **最新版本语言下载请查看 Releases (.exe)**
