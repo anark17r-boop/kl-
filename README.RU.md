@@ -1347,6 +1347,250 @@ array_fill_int(arr, 5, 0);
 free arr;
 ```
 
+## 24. Криптография
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `md5(text)` | MD5 хеш | `str` — 32 символа hex |
+| `sha1(text)` | SHA1 хеш | `str` — 40 символов hex |
+| `sha256(text)` | SHA256 хеш | `str` — 64 символа hex |
+| `base64_encode(text)` | Кодирование Base64 | `str` |
+| `base64_decode(text)` | Декодирование Base64 | `str` |
+| `xor_crypt(text, key)` | XOR шифрование/дешифрование | `str` |
+| `random_bytes(count)` | Случайные байты в hex | `str` |
+| `uuid()` | Генерация UUID v4 | `str` |
+| `crc32(text)` | Контрольная сумма CRC32 | `i32` |
+
+```
+let hash: str = sha256("Hello");
+let encoded: str = base64_encode("Secret");
+let decoded: str = base64_decode(encoded);
+let id: str = uuid();
+let checksum: i32 = crc32("data");
+```
+
+---
+
+## 25. TCP сокеты
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `tcp_connect(host, port)` | Подключиться к серверу | `i32` — сокет (-1 = ошибка) |
+| `tcp_send(sock, data)` | Отправить данные | `i32` — отправлено байт |
+| `tcp_send_bytes(sock, data, len)` | Отправить N байт | `i32` |
+| `tcp_recv(sock, max_size)` | Получить данные | `str` |
+| `tcp_recv_bytes(sock, buf, max)` | Получить в буфер | `i32` — получено байт |
+| `tcp_close(sock)` | Закрыть соединение | — |
+| `tcp_set_timeout(sock, ms)` | Установить таймаут | `i32` |
+
+```
+let sock: i32 = tcp_connect("example.com", 80);
+tcp_send(sock, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+let response: str = tcp_recv(sock, 4096);
+tcp_close(sock);
+```
+
+---
+
+## 26. TCP сервер
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `tcp_listen(port, backlog)` | Создать сервер | `i32` — сокет |
+| `tcp_accept(server_sock)` | Принять подключение | `i32` — клиент сокет |
+| `tcp_get_client_ip(client)` | IP клиента | `str` |
+
+```
+let server: i32 = tcp_listen(8080, 5);
+let client: i32 = tcp_accept(server);
+let ip: str = tcp_get_client_ip(client);
+tcp_send(client, "Hello from Kl+!");
+tcp_close(client);
+tcp_close(server);
+```
+
+---
+
+## 27. UDP сокеты
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `udp_create()` | Создать UDP сокет | `i32` — сокет |
+| `udp_bind(sock, port)` | Привязать к порту | `i32` — 0 = OK |
+| `udp_send(sock, host, port, data)` | Отправить данные | `i32` — отправлено |
+| `udp_recv(sock, max_size)` | Получить данные | `str` |
+| `udp_close(sock)` | Закрыть | — |
+
+```
+let sock: i32 = udp_create();
+udp_send(sock, "127.0.0.1", 9999, "Hello UDP!");
+udp_close(sock);
+```
+
+---
+
+## 28. Сетевые утилиты
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `dns_resolve(hostname)` | Разрешить DNS в IP | `str` |
+| `port_check(host, port, timeout_ms)` | Проверить порт | `i32` — 1 = открыт |
+
+```
+let ip: str = dns_resolve("google.com");
+let open: i32 = port_check(ip, 443, 3000);
+```
+
+---
+
+## 29. GUI Canvas (рисование)
+
+| Функция | Описание |
+|---------|----------|
+| `gui_canvas_init(win)` | Инициализировать canvas для окна |
+| `gui_canvas_clear(win, r, g, b)` | Очистить canvas цветом |
+| `gui_canvas_refresh(win)` | Обновить отображение |
+| `gui_draw_rect(win, x, y, w, h, r, g, b)` | Заполненный прямоугольник |
+| `gui_draw_rect_outline(win, x, y, w, h, r, g, b)` | Контур прямоугольника |
+| `gui_draw_circle(win, cx, cy, radius, r, g, b)` | Заполненный круг |
+| `gui_draw_line(win, x1, y1, x2, y2, r, g, b, thickness)` | Линия |
+| `gui_draw_text(win, text, x, y, r, g, b, font, size)` | Текст |
+| `gui_draw_text_bold(win, text, x, y, r, g, b, font, size)` | Жирный текст |
+| `gui_draw_pixel(win, x, y, r, g, b)` | Один пиксель |
+| `gui_draw_image(win, filename, x, y, w, h)` | Загрузить BMP изображение |
+
+```
+gui_canvas_init(win);
+gui_canvas_clear(win, 0, 0, 0);
+gui_draw_rect(win, 10, 10, 100, 50, 255, 0, 0);
+gui_draw_circle(win, 200, 200, 50, 0, 255, 0);
+gui_draw_line(win, 0, 0, 400, 300, 255, 255, 255, 2);
+gui_draw_text(win, "Hello!", 50, 50, 255, 255, 255, "Arial", 24);
+gui_draw_image(win, "sprite.bmp", 100, 100, 64, 64);
+gui_canvas_refresh(win);
+```
+
+---
+
+## 30. GUI Events v2
+
+| Функция | Описание | Возвращает |
+|---------|----------|------------|
+| `gui_poll_event()` | Получить событие | `i32` — 1 = есть |
+| `gui_get_event_id()` | ID элемента | `i32` |
+| `gui_get_event_type()` | Тип события | `i32` |
+| `gui_get_event_mouse_x()` | X мыши при событии | `i32` |
+| `gui_get_event_mouse_y()` | Y мыши при событии | `i32` |
+| `gui_get_event_key()` | Код клавиши | `i32` |
+| `gui_get_mouse_x()` | Текущий X мыши | `i32` |
+| `gui_get_mouse_y()` | Текущий Y мыши | `i32` |
+| `gui_is_mouse_down()` | Левая кнопка зажата | `i32` — 1 = да |
+| `gui_is_mouse_right_down()` | Правая кнопка зажата | `i32` — 1 = да |
+
+### Типы событий
+
+| Константа | Значение | Описание |
+|-----------|----------|----------|
+| `CLICK` | 1 | Клик кнопки или мыши |
+| `CHANGE` | 2 | Изменение текста |
+| `MOUSE_MOVE` | 3 | Движение мыши |
+| `MOUSE_DOWN` | 4 | Кнопка мыши нажата |
+| `MOUSE_UP` | 5 | Кнопка мыши отпущена |
+| `KEY_DOWN` | 6 | Клавиша нажата |
+| `KEY_UP` | 7 | Клавиша отпущена |
+| `TIMER` | 8 | Событие таймера |
+| `CLOSE` | 9 | Окно закрывается |
+| `PAINT` | 10 | Перерисовка |
+| `DOUBLE_CLICK` | 11 | Двойной клик |
+| `MOUSE_WHEEL` | 12 | Колёсико мыши |
+| `FOCUS` | 13 | Фокус элемента |
+| `RESIZE` | 14 | Изменение размера окна |
+
+```
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        let etype: i32 = gui_get_event_type();
+        let mx: i32 = gui_get_event_mouse_x();
+        let my: i32 = gui_get_event_mouse_y();
+
+        if etype == 1 {
+            println("Click at %d, %d", mx, my);
+        }
+        if etype == 6 {
+            let key: i32 = gui_get_event_key();
+            println("Key pressed: %d", key);
+        }
+        if etype == 8 {
+            println("Timer tick!");
+        }
+    }
+    sleep_ms(16);
+}
+```
+
+---
+
+## 31. GUI таймер
+
+| Функция | Описание |
+|---------|----------|
+| `gui_set_timer(win, ms)` | Запустить таймер (мс между тиками) |
+| `gui_stop_timer(win)` | Остановить таймер |
+
+```
+gui_set_timer(win, 50);
+
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        if gui_get_event_type() == 8 {
+            // Таймер тикнул — обновляем игру
+        }
+    }
+}
+
+gui_stop_timer(win);
+```
+
+---
+
+## 32. GUI курсор
+
+| Функция | Описание |
+|---------|----------|
+| `gui_set_cursor(type)` | Изменить курсор |
+
+| Тип | Значение | Описание |
+|-----|----------|----------|
+| 0 | Стрелка | По умолчанию |
+| 1 | Рука | Для кнопок |
+| 2 | Крестик | Для рисования |
+| 3 | Текст | Для ввода |
+| 4 | Ожидание | Загрузка |
+
+```
+gui_set_cursor(1);
+```
+
+---
+
+## 33. VS Code расширение
+
+### Установка
+
+1. Если нет Node.js, установить отсюда: https://nodejs.org/en/download (.msi инсталлятор)
+2. Открыть VS Code
+3. Нажать Ctrl+Shift+P
+4. Ввести `Extensions: Install from VSIX...`
+5. Выбрать файл `.vsix`
+
+### Возможности
+
+- Подсветка синтаксиса всех ключевых слов
+- Подсветка встроенных функций по категориям
+- Автозакрытие скобок и кавычек
+- Сниппеты: `main`, `fn`, `for`, `if`, `try`, `struct`, `httpget`, `guiwin`, `tcp`, `timer` и другие
+- Тёмная тема "Kl+ Dark"
+
 ```
 скачать последнюю версию языка можно в Releases(.exe)
 ```
