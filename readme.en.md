@@ -1346,6 +1346,250 @@ array_fill_int(arr, 5, 0);
 free arr;
 ```
 
+## 24. Cryptography
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `md5(text)` | MD5 hash | `str` — 32 hex chars |
+| `sha1(text)` | SHA1 hash | `str` — 40 hex chars |
+| `sha256(text)` | SHA256 hash | `str` — 64 hex chars |
+| `base64_encode(text)` | Base64 encoding | `str` |
+| `base64_decode(text)` | Base64 decoding | `str` |
+| `xor_crypt(text, key)` | XOR encryption/decryption | `str` |
+| `random_bytes(count)` | Random bytes in hex | `str` |
+| `uuid()` | Generate UUID v4 | `str` |
+| `crc32(text)` | CRC32 checksum | `i32` |
+
+```
+let hash: str = sha256("Hello");
+let encoded: str = base64_encode("Secret");
+let decoded: str = base64_decode(encoded);
+let id: str = uuid();
+let checksum: i32 = crc32("data");
+```
+
+---
+
+## 25. TCP Sockets
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `tcp_connect(host, port)` | Connect to server | `i32` — socket (-1 = error) |
+| `tcp_send(sock, data)` | Send data | `i32` — bytes sent |
+| `tcp_send_bytes(sock, data, len)` | Send N bytes | `i32` |
+| `tcp_recv(sock, max_size)` | Receive data | `str` |
+| `tcp_recv_bytes(sock, buf, max)` | Receive into buffer | `i32` — bytes received |
+| `tcp_close(sock)` | Close connection | — |
+| `tcp_set_timeout(sock, ms)` | Set timeout | `i32` |
+
+```
+let sock: i32 = tcp_connect("example.com", 80);
+tcp_send(sock, "GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+let response: str = tcp_recv(sock, 4096);
+tcp_close(sock);
+```
+
+---
+
+## 26. TCP Server
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `tcp_listen(port, backlog)` | Create server | `i32` — socket |
+| `tcp_accept(server_sock)` | Accept connection | `i32` — client socket |
+| `tcp_get_client_ip(client)` | Client IP | `str` |
+
+```
+let server: i32 = tcp_listen(8080, 5);
+let client: i32 = tcp_accept(server);
+let ip: str = tcp_get_client_ip(client);
+tcp_send(client, "Hello from Kl+!");
+tcp_close(client);
+tcp_close(server);
+```
+
+---
+
+## 27. UDP Sockets
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `udp_create()` | Create UDP socket | `i32` — socket |
+| `udp_bind(sock, port)` | Bind to port | `i32` — 0 = OK |
+| `udp_send(sock, host, port, data)` | Send data | `i32` — sent |
+| `udp_recv(sock, max_size)` | Receive data | `str` |
+| `udp_close(sock)` | Close | — |
+
+```
+let sock: i32 = udp_create();
+udp_send(sock, "127.0.0.1", 9999, "Hello UDP!");
+udp_close(sock);
+```
+
+---
+
+## 28. Network Utilities
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `dns_resolve(hostname)` | Resolve DNS to IP | `str` |
+| `port_check(host, port, timeout_ms)` | Check port | `i32` — 1 = open |
+
+```
+let ip: str = dns_resolve("google.com");
+let open: i32 = port_check(ip, 443, 3000);
+```
+
+---
+
+## 29. GUI Canvas (Drawing)
+
+| Function | Description |
+|----------|-------------|
+| `gui_canvas_init(win)` | Initialize canvas for window |
+| `gui_canvas_clear(win, r, g, b)` | Clear canvas with color |
+| `gui_canvas_refresh(win)` | Refresh display |
+| `gui_draw_rect(win, x, y, w, h, r, g, b)` | Filled rectangle |
+| `gui_draw_rect_outline(win, x, y, w, h, r, g, b)` | Rectangle outline |
+| `gui_draw_circle(win, cx, cy, radius, r, g, b)` | Filled circle |
+| `gui_draw_line(win, x1, y1, x2, y2, r, g, b, thickness)` | Line |
+| `gui_draw_text(win, text, x, y, r, g, b, font, size)` | Text |
+| `gui_draw_text_bold(win, text, x, y, r, g, b, font, size)` | Bold text |
+| `gui_draw_pixel(win, x, y, r, g, b)` | Single pixel |
+| `gui_draw_image(win, filename, x, y, w, h)` | Load BMP image |
+
+```
+gui_canvas_init(win);
+gui_canvas_clear(win, 0, 0, 0);
+gui_draw_rect(win, 10, 10, 100, 50, 255, 0, 0);
+gui_draw_circle(win, 200, 200, 50, 0, 255, 0);
+gui_draw_line(win, 0, 0, 400, 300, 255, 255, 255, 2);
+gui_draw_text(win, "Hello!", 50, 50, 255, 255, 255, "Arial", 24);
+gui_draw_image(win, "sprite.bmp", 100, 100, 64, 64);
+gui_canvas_refresh(win);
+```
+
+---
+
+## 30. GUI Events v2
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `gui_poll_event()` | Get event | `i32` — 1 = available |
+| `gui_get_event_id()` | Element ID | `i32` |
+| `gui_get_event_type()` | Event type | `i32` |
+| `gui_get_event_mouse_x()` | Mouse X at event | `i32` |
+| `gui_get_event_mouse_y()` | Mouse Y at event | `i32` |
+| `gui_get_event_key()` | Key code | `i32` |
+| `gui_get_mouse_x()` | Current mouse X | `i32` |
+| `gui_get_mouse_y()` | Current mouse Y | `i32` |
+| `gui_is_mouse_down()` | Left button pressed | `i32` — 1 = yes |
+| `gui_is_mouse_right_down()` | Right button pressed | `i32` — 1 = yes |
+
+### Event Types
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `CLICK` | 1 | Button or mouse click |
+| `CHANGE` | 2 | Text change |
+| `MOUSE_MOVE` | 3 | Mouse movement |
+| `MOUSE_DOWN` | 4 | Mouse button down |
+| `MOUSE_UP` | 5 | Mouse button up |
+| `KEY_DOWN` | 6 | Key pressed |
+| `KEY_UP` | 7 | Key released |
+| `TIMER` | 8 | Timer event |
+| `CLOSE` | 9 | Window closing |
+| `PAINT` | 10 | Redraw |
+| `DOUBLE_CLICK` | 11 | Double click |
+| `MOUSE_WHEEL` | 12 | Mouse wheel |
+| `FOCUS` | 13 | Element focus |
+| `RESIZE` | 14 | Window resize |
+
+```
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        let etype: i32 = gui_get_event_type();
+        let mx: i32 = gui_get_event_mouse_x();
+        let my: i32 = gui_get_event_mouse_y();
+
+        if etype == 1 {
+            println("Click at %d, %d", mx, my);
+        }
+        if etype == 6 {
+            let key: i32 = gui_get_event_key();
+            println("Key pressed: %d", key);
+        }
+        if etype == 8 {
+            println("Timer tick!");
+        }
+    }
+    sleep_ms(16);
+}
+```
+
+---
+
+## 31. GUI Timer
+
+| Function | Description |
+|----------|-------------|
+| `gui_set_timer(win, ms)` | Start timer (ms between ticks) |
+| `gui_stop_timer(win)` | Stop timer |
+
+```
+gui_set_timer(win, 50);
+
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        if gui_get_event_type() == 8 {
+            // Timer tick - update game
+        }
+    }
+}
+
+gui_stop_timer(win);
+```
+
+---
+
+## 32. GUI Cursor
+
+| Function | Description |
+|----------|-------------|
+| `gui_set_cursor(type)` | Change cursor |
+
+| Type | Value | Description |
+|------|-------|-------------|
+| 0 | Arrow | Default |
+| 1 | Hand | For buttons |
+| 2 | Crosshair | For drawing |
+| 3 | Text | For input |
+| 4 | Wait | Loading |
+
+```
+gui_set_cursor(1);
+```
+
+---
+
+## 33. VS Code Extension
+
+### Installation
+
+1. If Node.js is not installed, install from: https://nodejs.org/en/download (.msi installer)
+2. Open VS Code
+3. Press Ctrl+Shift+P
+4. Enter `Extensions: Install from VSIX...`
+5. Select the `.vsix` file
+
+### Features
+
+- Syntax highlighting for all keywords
+- Category-based highlighting for built-in functions
+- Auto-closing brackets and quotes
+- Snippets: `main`, `fn`, `for`, `if`, `try`, `struct`, `httpget`, `guiwin`, `tcp`, `timer` and more
+- "Kl+ Dark" theme
+
 ---
 
 **Download the latest version of the language in Releases (.exe)**
