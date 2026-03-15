@@ -1016,6 +1016,194 @@ fn main() {
 }
 ```
 
+## 14. 导入系统
+
+### 文件包含
+```
+import "myfile.kl";
+```
+包含另一个 `.kl` 文件的内容。首先在当前文件夹中搜索，然后在 `stdlib/` 中搜索。
+
+---
+
+## 15. 错误处理
+
+### Try / Catch / Throw
+```
+try {
+    throw "Something went wrong!";
+} catch (err) {
+    println("Error: %s", err);
+}
+```
+
+| 关键字 | 描述 |
+|--------|------|
+| `try` | 可能引发错误的代码块 |
+| `catch (err)` | 捕获错误，`err` 是错误消息字符串 |
+| `throw "msg"` | 抛出错误 |
+
+---
+
+## 16. 定时器
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `timer_start()` | 启动定时器 | — |
+| `timer_end()` | 停止并获取时间 | `f64` — 毫秒 |
+| `timer_ms()` | 当前时间（毫秒） | `f64` |
+| `timer_us()` | 当前时间（微秒） | `f64` |
+| `sleep(seconds)` | 暂停（秒） | — |
+| `sleep_ms(ms)` | 暂停（毫秒） | — |
+
+```
+timer_start();
+// ... 代码 ...
+let elapsed: f64 = timer_end();
+println("Time: %f ms", elapsed);
+
+sleep(1);
+sleep_ms(500);
+```
+
+---
+
+## 17. 文件输入/输出
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `file_read(path)` | 读取文件 | `str` — 内容 |
+| `file_write(path, content)` | 写入文件 | `i32` — 0 = 成功 |
+| `file_append(path, content)` | 追加到文件 | `i32` — 0 = 成功 |
+| `file_exists(path)` | 检查文件是否存在 | `i32` — 1 = 存在 |
+| `file_delete(path)` | 删除文件 | `i32` — 0 = 成功 |
+| `file_copy(src, dst)` | 复制文件 | `i32` — 0 = 成功 |
+| `file_size(path)` | 文件大小 | `i64` — 字节 |
+| `file_lines(path)` | 行数 | `i32` |
+| `file_read_bytes(path, offset, count)` | 读取字节 | `str` |
+| `file_write_bytes(path, data, length)` | 写入字节 | `i32` — 0 = 成功 |
+
+```
+file_write("test.txt", "Hello World!\n");
+let content: str = file_read("test.txt");
+println("%s", content);
+
+if file_exists("test.txt") == 1 {
+    let size: i64 = file_size("test.txt");
+    println("Size: %lld bytes", size);
+}
+
+file_append("test.txt", "New line\n");
+file_copy("test.txt", "backup.txt");
+file_delete("backup.txt");
+```
+
+---
+
+## 18. 图形用户界面 (GUI)
+
+### 消息框
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `msgbox(title, message)` | 信息框 | `i32` |
+| `msgbox_yesno(title, message)` | 是/否框 | `i32` — 1 = 是，0 = 否 |
+| `msgbox_yesnocancel(title, message)` | 是/否/取消框 | `i32` — 1/0/-1 |
+| `msgbox_error(title, message)` | 错误框 | — |
+| `msgbox_warning(title, message)` | 警告框 | — |
+| `notification(title, message)` | 系统通知 | — |
+
+```
+msgbox("Info", "Hello from Kl+!");
+
+let answer: i32 = msgbox_yesno("Question", "Continue?");
+if answer == 1 {
+    println("Yes!");
+}
+
+msgbox_error("Error", "Something failed!");
+```
+
+### 输入对话框
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `input_dialog(title, prompt)` | 文本输入对话框 | `str` |
+
+```
+let name: str = input_dialog("Input", "Enter your name:");
+println("Hello, %s!", name);
+```
+
+### 文件对话框
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `file_open_dialog(title, filter)` | 打开文件对话框 | `str` — 路径 |
+| `file_save_dialog(title, filter)` | 保存文件对话框 | `str` — 路径 |
+
+```
+let path: str = file_open_dialog("Open", "Text Files\0*.txt\0");
+println("Selected: %s", path);
+```
+
+### 颜色选择器
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `color_dialog()` | 颜色选择器 | `i32` — RGB值，-1 = 取消 |
+
+```
+let color: i32 = color_dialog();
+println("Color: %d", color);
+```
+
+### 剪贴板
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `clipboard_set(text)` | 复制到剪贴板 | `i32` — 0 = 成功 |
+| `clipboard_get()` | 从剪贴板获取 | `str` |
+
+```
+clipboard_set("Hello from Kl+!");
+let text: str = clipboard_get();
+println("Clipboard: %s", text);
+```
+
+### 窗口系统
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `gui_window(title, width, height)` | 创建窗口 | `i32` — 窗口ID |
+| `gui_button(win, text, x, y, w, h, id)` | 添加按钮 | — |
+| `gui_label(win, text, x, y, w, h, id)` | 添加标签 | — |
+| `gui_textbox(win, text, x, y, w, h, id)` | 添加文本框 | — |
+| `gui_textbox_multi(win, text, x, y, w, h, id)` | 多行文本框 | — |
+| `gui_checkbox(win, text, x, y, w, h, id)` | 添加复选框 | — |
+| `gui_progressbar(win, x, y, w, h, id)` | 进度条 | — |
+| `gui_set_progress(win, id, value)` | 设置进度 (0-100) | — |
+| `gui_get_text(win, id)` | 获取元素文本 | `str` |
+| `gui_set_text(win, id, text)` | 设置元素文本 | — |
+| `gui_is_checked(win, id)` | 复选框状态 | `i32` — 1 = 已选中 |
+| `gui_run(win)` | 运行窗口循环 | `i32` |
+| `gui_close(win)` | 关闭窗口 | — |
+| `gui_show(win)` | 显示窗口 | — |
+| `gui_hide(win)` | 隐藏窗口 | — |
+| `gui_set_title(win, title)` | 修改标题 | — |
+| `gui_enable(win, id, enabled)` | 启用/禁用元素 | — |
+
+```
+let win: i32 = gui_window("My App", 400, 300);
+gui_label(win, "Hello!", 20, 20, 200, 25, 1);
+gui_textbox(win, "", 20, 50, 200, 25, 2);
+gui_button(win, "Click Me", 20, 90, 100, 30, 3);
+gui_checkbox(win, "Option", 20, 130, 150, 25, 4);
+gui_progressbar(win, 20, 170, 350, 25, 5);
+gui_set_progress(win, 5, 75);
+gui_run(win);
+```
+
 ---
 
 **最新版本语言下载请查看 Releases (.exe)**
