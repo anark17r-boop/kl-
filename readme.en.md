@@ -2,7 +2,7 @@
 
 **Kl+** is a modern compiled programming language that combines low-level control of C/C++ with the expressiveness of high-level languages.
 
-- **Version:** 0.1.3
+- **Version:** 1.3.2
 - **Platforms:** Windows
 
 ---
