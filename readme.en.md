@@ -1204,6 +1204,148 @@ gui_set_progress(win, 5, 75);
 gui_run(win);
 ```
 
+## 19. GUI Events
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `gui_update(win)` | Update window (for event loop) | `i32` — 1 = running, 0 = closed |
+| `gui_poll_event()` | Get next event | `i32` — 1 = event available, 0 = none |
+| `gui_get_event_id()` | ID of the element that triggered the event | `i32` |
+| `gui_get_event_type()` | Event type (1=click, 2=change) | `i32` |
+
+```
+let win: i32 = gui_window("My App", 400, 300);
+gui_button(win, "Click Me", 20, 20, 100, 30, 10);
+
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        let id: i32 = gui_get_event_id();
+        if id == 10 {
+            msgbox("Info", "Button clicked!");
+        }
+    }
+    sleep_ms(16);
+}
+```
+
+---
+
+## 20. GUI Styles
+
+| Function | Description |
+|----------|-------------|
+| `gui_set_color(win, id, r, g, b)` | Text color (RGB 0-255) |
+| `gui_set_bg_color(win, id, r, g, b)` | Background color (RGB 0-255) |
+| `gui_set_font(win, id, "name", size)` | Font and size |
+| `gui_set_font_bold(win, id, 1)` | Bold font (1=yes, 0=no) |
+| `gui_set_visible(win, id, 1)` | Visibility (1=show, 0=hide) |
+| `gui_set_size(win, id, w, h)` | Change element size |
+| `gui_set_pos(win, id, x, y)` | Change element position |
+
+```
+gui_set_color(win, 1, 255, 0, 0);
+gui_set_bg_color(win, 1, 30, 30, 30);
+gui_set_font(win, 1, "Arial", 20);
+gui_set_font_bold(win, 1, 1);
+gui_set_visible(win, 5, 0);
+gui_set_size(win, 3, 300, 40);
+gui_set_pos(win, 3, 50, 100);
+```
+
+---
+
+## 21. GUI Dialogs
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `msgbox_yesnocancel(title, msg)` | Yes/No/Cancel dialog | `i32` — 1=Yes, 0=No, -1=Cancel |
+| `file_open_dialog(title, filter)` | File open dialog | `str` — file path |
+| `file_save_dialog(title, filter)` | File save dialog | `str` — file path |
+| `color_dialog()` | Color picker | `i32` — RGB value |
+| `clipboard_set(text)` | Copy to clipboard | `i32` — 0=OK |
+| `clipboard_get()` | Get from clipboard | `str` |
+| `notification(title, msg)` | System notification | — |
+
+```
+let path: str = file_open_dialog("Open", "Text\0*.txt\0");
+let color: i32 = color_dialog();
+clipboard_set("Hello!");
+let text: str = clipboard_get();
+```
+
+---
+
+## 22. Memory Management
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `mem_zero(ptr, size)` | Zero out memory block | — |
+| `mem_fill(ptr, value, size)` | Fill with bytes | — |
+| `mem_copy(dst, src, size)` | Copy memory block | — |
+| `mem_compare(a, b, size)` | Compare blocks (0=equal) | `i32` |
+| `mem_swap_int(&a, &b)` | Swap two ints | — |
+| `mem_swap_float(&a, &b)` | Swap two floats | — |
+| `mem_realloc(ptr, new_size)` | Resize allocated memory | `ptr` |
+| `mem_info()` | Show memory information | — |
+| `mem_active_count()` | Number of active allocations | `i32` |
+| `mem_total_bytes()` | Total bytes allocated | `i32` |
+
+```
+let arr: ptr<i32> = alloc(i32, 10);
+mem_zero(arr, 10 * 4);
+mem_fill(arr, 0xFF, 10 * 4);
+
+let copy: ptr<i32> = alloc(i32, 10);
+mem_copy(copy, arr, 10 * 4);
+
+let eq: i32 = mem_compare(arr, copy, 10 * 4);
+
+let mut a: i32 = 10;
+let mut b: i32 = 20;
+mem_swap_int(&a, &b);
+
+mem_info();
+free arr;
+free copy;
+```
+
+---
+
+## 23. Array Utilities
+
+| Function | Description | Returns |
+|----------|-------------|---------|
+| `array_fill_int(arr, count, value)` | Fill array with value | — |
+| `array_fill_float(arr, count, value)` | Fill float array | — |
+| `array_reverse_int(arr, count)` | Reverse array | — |
+| `array_sum_int(arr, count)` | Sum of elements | `i32` |
+| `array_min_int(arr, count)` | Minimum element | `i32` |
+| `array_max_int(arr, count)` | Maximum element | `i32` |
+| `array_find_int(arr, count, value)` | Find element (-1=not found) | `i32` |
+| `array_sort_int(arr, count)` | Sort ascending | — |
+| `array_print_int(arr, count)` | Print array | — |
+
+```
+let arr: ptr<i32> = alloc(i32, 5);
+arr[0] = 42; arr[1] = 17; arr[2] = 93; arr[3] = 5; arr[4] = 71;
+
+array_print_int(arr, 5);
+array_sort_int(arr, 5);
+array_print_int(arr, 5);
+
+println("Sum: %d", array_sum_int(arr, 5));
+println("Min: %d", array_min_int(arr, 5));
+println("Max: %d", array_max_int(arr, 5));
+
+let idx: i32 = array_find_int(arr, 5, 42);
+println("Found 42 at index: %d", idx);
+
+array_reverse_int(arr, 5);
+array_fill_int(arr, 5, 0);
+
+free arr;
+```
+
 ---
 
 **Download the latest version of the language in Releases (.exe)**
