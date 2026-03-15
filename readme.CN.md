@@ -1203,6 +1203,147 @@ gui_progressbar(win, 20, 170, 350, 25, 5);
 gui_set_progress(win, 5, 75);
 gui_run(win);
 ```
+## 19. GUI 事件
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `gui_update(win)` | 更新窗口（用于事件循环） | `i32` — 1 = 运行中，0 = 已关闭 |
+| `gui_poll_event()` | 获取下一个事件 | `i32` — 1 = 有事件，0 = 无 |
+| `gui_get_event_id()` | 触发事件的元素ID | `i32` |
+| `gui_get_event_type()` | 事件类型（1=点击，2=更改） | `i32` |
+
+```
+let win: i32 = gui_window("My App", 400, 300);
+gui_button(win, "Click Me", 20, 20, 100, 30, 10);
+
+while gui_update(win) == 1 {
+    while gui_poll_event() == 1 {
+        let id: i32 = gui_get_event_id();
+        if id == 10 {
+            msgbox("Info", "Button clicked!");
+        }
+    }
+    sleep_ms(16);
+}
+```
+
+---
+
+## 20. GUI 样式
+
+| 函数 | 描述 |
+|------|------|
+| `gui_set_color(win, id, r, g, b)` | 文本颜色（RGB 0-255） |
+| `gui_set_bg_color(win, id, r, g, b)` | 背景颜色（RGB 0-255） |
+| `gui_set_font(win, id, "name", size)` | 字体和大小 |
+| `gui_set_font_bold(win, id, 1)` | 粗体（1=是，0=否） |
+| `gui_set_visible(win, id, 1)` | 可见性（1=显示，0=隐藏） |
+| `gui_set_size(win, id, w, h)` | 更改元素大小 |
+| `gui_set_pos(win, id, x, y)` | 更改元素位置 |
+
+```
+gui_set_color(win, 1, 255, 0, 0);
+gui_set_bg_color(win, 1, 30, 30, 30);
+gui_set_font(win, 1, "Arial", 20);
+gui_set_font_bold(win, 1, 1);
+gui_set_visible(win, 5, 0);
+gui_set_size(win, 3, 300, 40);
+gui_set_pos(win, 3, 50, 100);
+```
+
+---
+
+## 21. GUI 对话框
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `msgbox_yesnocancel(title, msg)` | 是/否/取消对话框 | `i32` — 1=是，0=否，-1=取消 |
+| `file_open_dialog(title, filter)` | 打开文件对话框 | `str` — 文件路径 |
+| `file_save_dialog(title, filter)` | 保存文件对话框 | `str` — 文件路径 |
+| `color_dialog()` | 颜色选择器 | `i32` — RGB值 |
+| `clipboard_set(text)` | 复制到剪贴板 | `i32` — 0=成功 |
+| `clipboard_get()` | 从剪贴板获取 | `str` |
+| `notification(title, msg)` | 系统通知 | — |
+
+```
+let path: str = file_open_dialog("Open", "Text\0*.txt\0");
+let color: i32 = color_dialog();
+clipboard_set("Hello!");
+let text: str = clipboard_get();
+```
+
+---
+
+## 22. 内存管理
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `mem_zero(ptr, size)` | 将内存块置零 | — |
+| `mem_fill(ptr, value, size)` | 用字节填充 | — |
+| `mem_copy(dst, src, size)` | 复制内存块 | — |
+| `mem_compare(a, b, size)` | 比较内存块（0=相等） | `i32` |
+| `mem_swap_int(&a, &b)` | 交换两个int | — |
+| `mem_swap_float(&a, &b)` | 交换两个float | — |
+| `mem_realloc(ptr, new_size)` | 重新分配内存大小 | `ptr` |
+| `mem_info()` | 显示内存信息 | — |
+| `mem_active_count()` | 活动分配数量 | `i32` |
+| `mem_total_bytes()` | 分配的总字节数 | `i32` |
+
+```
+let arr: ptr<i32> = alloc(i32, 10);
+mem_zero(arr, 10 * 4);
+mem_fill(arr, 0xFF, 10 * 4);
+
+let copy: ptr<i32> = alloc(i32, 10);
+mem_copy(copy, arr, 10 * 4);
+
+let eq: i32 = mem_compare(arr, copy, 10 * 4);
+
+let mut a: i32 = 10;
+let mut b: i32 = 20;
+mem_swap_int(&a, &b);
+
+mem_info();
+free arr;
+free copy;
+```
+
+---
+
+## 23. 数组工具
+
+| 函数 | 描述 | 返回值 |
+|------|------|--------|
+| `array_fill_int(arr, count, value)` | 用值填充数组 | — |
+| `array_fill_float(arr, count, value)` | 填充float数组 | — |
+| `array_reverse_int(arr, count)` | 反转数组 | — |
+| `array_sum_int(arr, count)` | 元素总和 | `i32` |
+| `array_min_int(arr, count)` | 最小元素 | `i32` |
+| `array_max_int(arr, count)` | 最大元素 | `i32` |
+| `array_find_int(arr, count, value)` | 查找元素（-1=未找到） | `i32` |
+| `array_sort_int(arr, count)` | 升序排序 | — |
+| `array_print_int(arr, count)` | 打印数组 | — |
+
+```
+let arr: ptr<i32> = alloc(i32, 5);
+arr[0] = 42; arr[1] = 17; arr[2] = 93; arr[3] = 5; arr[4] = 71;
+
+array_print_int(arr, 5);
+array_sort_int(arr, 5);
+array_print_int(arr, 5);
+
+println("Sum: %d", array_sum_int(arr, 5));
+println("Min: %d", array_min_int(arr, 5));
+println("Max: %d", array_max_int(arr, 5));
+
+let idx: i32 = array_find_int(arr, 5, 42);
+println("Found 42 at index: %d", idx);
+
+array_reverse_int(arr, 5);
+array_fill_int(arr, 5, 0);
+
+free arr;
+```
 
 ---
 
